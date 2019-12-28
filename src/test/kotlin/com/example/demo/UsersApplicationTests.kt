@@ -18,7 +18,7 @@ class UsersApplicationTests {
 
     lateinit var mockMvc: MockMvc
     @Autowired
-    lateinit var userRepository: UserRepository
+    lateinit var userRepository: MongoUserRepository
     @Autowired
     lateinit var objectMapper: ObjectMapper
 
