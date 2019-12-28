@@ -27,10 +27,15 @@ class UsersApplication {
 class UsersApplicationConfiguration {
 
     @Bean
-    fun userRepository(mongoUserRepository: MongoUserRepository): UserRepository {
-        return AuditedUserRepository(mongoUserRepository, InMemoryAuditService())
+    fun auditService(): AuditService {
+        return InMemoryAuditService()
     }
 
+    @Bean
+    fun userRepository(mongoUserRepository: MongoUserRepository,
+                       auditService: AuditService): UserRepository {
+        return AuditedUserRepository(mongoUserRepository, auditService)
+    }
 }
 
 @RestController
