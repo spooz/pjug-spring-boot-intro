@@ -1,5 +1,6 @@
 package com.example.demo
 
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.data.repository.CrudRepository
@@ -9,13 +10,16 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
 @SpringBootApplication
 class UsersApplication {
-    fun main(args: Array<String>) {
-        runApplication<UsersApplication>(*args)
+    companion object {
+        @JvmStatic fun main(args: Array<String>) {
+            SpringApplication.run(UsersApplication::class.java, *args)
+        }
     }
 }
 
@@ -23,10 +27,10 @@ class UsersApplication {
 class RestController(private val userRepository: UserRepository) {
 
     @PostMapping("/users", consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
-    fun registerUser(request: UserRequest): UserId {
+    fun registerUser(@RequestBody request: UserRequest): UserResponse {
         val uuid = UUID.randomUUID().toString()
-        userRepository.save(UserDocument(id = uuid, email = request.email))
-        return UserId(uuid)
+        val savedUser = userRepository.save(UserDocument(id = uuid, email = request.email))
+        return UserResponse(savedUser.id, savedUser.email)
     }
 
     @GetMapping("/users/{id}", produces = [APPLICATION_JSON_VALUE])

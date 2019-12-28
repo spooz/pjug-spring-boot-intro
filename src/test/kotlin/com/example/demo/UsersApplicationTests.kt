@@ -1,5 +1,6 @@
 package com.example.demo
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +19,8 @@ class UsersApplicationTests {
     lateinit var mockMvc: MockMvc
     @Autowired
     lateinit var userRepository: UserRepository
+    @Autowired
+    lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setup(wac: WebApplicationContext) {
@@ -30,7 +33,7 @@ class UsersApplicationTests {
         //when
         mockMvc.post("/users") {
             contentType = MediaType.APPLICATION_JSON
-            content = RegisterUserRequest("test@test.com")
+            content = objectMapper.writeValueAsString(RegisterUserRequest("test@test.com"))
             accept = MediaType.APPLICATION_JSON
         }
 
@@ -38,7 +41,7 @@ class UsersApplicationTests {
          .andExpect {
             status { isOk }
             content { contentType(MediaType.APPLICATION_JSON) }
-            jsonPath("$.userId") { exists() }
+            jsonPath("$.id") { exists() }
         }
     }
 
