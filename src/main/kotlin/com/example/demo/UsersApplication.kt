@@ -2,8 +2,6 @@ package com.example.demo
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
-import org.springframework.data.repository.CrudRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
@@ -50,10 +48,5 @@ class RestController(private val userRepository: UserRepository) {
     data class UserRequest(val email: String) //TODO: validation
     data class UserResponse(val id: String,
                             val email: String)
-
-    data class UserId(val value: String)
 }
 
-interface UserRepository : CrudRepository<UserDocument, String>
-data class UserDocument(var id: String,
-                        val email: String)
