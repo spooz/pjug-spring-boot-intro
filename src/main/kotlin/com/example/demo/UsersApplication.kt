@@ -2,6 +2,8 @@ package com.example.demo
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
@@ -21,6 +23,21 @@ class UsersApplication {
     }
 }
 
+@Configuration
+class UsersApplicationConfiguration {
+
+    @Bean
+    fun auditService(): AuditService {
+        return InMemoryAuditService()
+    }
+
+    @Bean
+    fun userRepository(mongoUserRepository: MongoUserRepository,
+                       auditService: AuditService): UserRepository {
+        return AuditedUserRepository(mongoUserRepository, auditService)
+    }
+}
+
 @RestController
 class RestController(private val userRepository: UserRepository) {
 
@@ -34,9 +51,9 @@ class RestController(private val userRepository: UserRepository) {
     @GetMapping("/users/{id}", produces = [APPLICATION_JSON_VALUE])
     fun getUser(@PathVariable id: String): ResponseEntity<UserResponse> {
         return userRepository.findById(id)
-                .map { UserResponse(it.id, it.email) }
-                .map { ResponseEntity.ok(it) }
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build())
+                ?.let { UserResponse(it.id, it.email) }
+                ?.let { ResponseEntity.ok(it) }
+                ?: (ResponseEntity.status(HttpStatus.NOT_FOUND).build())
     }
 
     @GetMapping("/users", produces = [APPLICATION_JSON_VALUE])

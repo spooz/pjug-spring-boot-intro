@@ -12,15 +12,17 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
-@SpringBootTest(classes = [UsersApplication::class],
+@SpringBootTest(classes = [UsersApplication::class, TestConfiguration::class],
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UsersApplicationTests {
 
     lateinit var mockMvc: MockMvc
     @Autowired
-    lateinit var userRepository: UserRepository
+    lateinit var userRepository: MongoUserRepository
     @Autowired
     lateinit var objectMapper: ObjectMapper
+    @Autowired
+    lateinit var auditService: TestAuditService
 
     @BeforeEach
     fun setup(wac: WebApplicationContext) {
@@ -43,6 +45,9 @@ class UsersApplicationTests {
             content { contentType(MediaType.APPLICATION_JSON) }
             jsonPath("$.id") { exists() }
         }
+
+        //and
+        auditService.logSize() == 1
     }
 
     data class RegisterUserRequest(val email: String)
@@ -65,6 +70,9 @@ class UsersApplicationTests {
             jsonPath("$.id") { value(userId) }
             jsonPath("$.email") { value("test1@test.com") }
         }
+
+        //and
+        auditService.logSize() == 1
     }
 
     @Test
@@ -81,6 +89,9 @@ class UsersApplicationTests {
          .andExpect {
             status { isNotFound }
         }
+
+        //and
+        auditService.logSize() == 1
     }
 
     @Test
@@ -103,6 +114,9 @@ class UsersApplicationTests {
             jsonPath("$[1].id") { value("test-id-2") }
             jsonPath("$[1].email") { value("test2@test.com") }
         }
+
+        //and
+        auditService.logSize() == 1
 
     }
 }
